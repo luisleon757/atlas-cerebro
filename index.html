@@ -112,7 +112,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="loading" id="loading">Cargando modelo 3D…</div>
     <div class="brand">
       <h1>Atlas del Cerebro</h1>
-      <p>Modelo anatómico MNI152 · 6 regiones</p>
+      <p>Modelo anatómico MNI152 · 6 regiones · v6</p>
     </div>
     <div class="tag" id="tag" hidden></div>
     <div class="arbox" id="ar" hidden>
@@ -503,20 +503,25 @@ async function startCamera(){
 /* Giroscopio: el cerebro se queda quieto en el espacio al mover la tablet */
 const gyro={on:false,ori:null,dist:3.2,saved:null,drag:null};
 const _zee=new THREE.Vector3(0,0,1),_eul=new THREE.Euler(),_q0=new THREE.Quaternion(),_q1=new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5));
-function onOrient(e){ if(e.alpha!=null) gyro.ori={a:e.alpha,b:e.beta,g:e.gamma}; }
+function onOrient(e){ if(e.beta==null) return; gyro.seen=true; if(e.alpha==null) gyro.noYaw=true;
+  gyro.ori={a:e.alpha==null?0:e.alpha,b:e.beta,g:e.gamma||0}; }
 function orientQuat(q){
   const d=THREE.MathUtils.DEG2RAD, o=gyro.ori, sa=((screen.orientation&&screen.orientation.angle)||window.orientation||0)*d;
   _eul.set(o.b*d,o.a*d,-o.g*d,'YXZ'); q.setFromEuler(_eul); q.multiply(_q1); q.multiply(_q0.setFromAxisAngle(_zee,-sa));
 }
 function startGyro(){
   if(!('DeviceOrientationEvent' in window)) return;
-  gyro.ori=null; window.addEventListener('deviceorientation',onOrient);
-  setTimeout(()=>{ if(!cam.on||!gyro.ori) return;   // sin sensor: se queda el modo flotante
+  gyro.ori=null; gyro.seen=false; gyro.noYaw=false;
+  window.addEventListener('deviceorientation',onOrient); window.addEventListener('deviceorientationabsolute',onOrient);
+  setTimeout(()=>{ if(!cam.on) return;
+    if(!gyro.ori){ arHint.textContent='Esta tablet no envía datos de giroscopio al navegador, por eso el cerebro flota. Gíralo con el dedo y toca una zona para iluminarla.'; return; }
     gyro.on=true; controls.enabled=false;
     gyro.saved={pos:camera.position.clone(),q:camera.quaternion.clone()};
     camera.position.set(0,0,0); orientQuat(camera.quaternion); placeInFront();
     $('arReplace').hidden=false;
-    arHint.textContent='El cerebro se queda en su sitio: mueve la tablet para mirarlo. Arrastra con el dedo para girarlo y toca una zona para iluminarla.';
+    arHint.textContent=gyro.noYaw
+      ? 'Tu tablet solo detecta la inclinación: al inclinarla el cerebro se queda en su sitio, pero al girarla a los lados no. Arrastra con el dedo para girarlo.'
+      : 'Giroscopio activado: el cerebro se queda en su sitio al mover la tablet. Arrastra con el dedo para girarlo y toca una zona para iluminarla.';
   },800);
 }
 function placeInFront(){
@@ -526,7 +531,7 @@ function placeInFront(){
   brainRoot.rotation.set(0,Math.atan2(f.x,f.z)+Math.PI/2,0); // cara lateral hacia ti
 }
 function stopGyro(){
-  window.removeEventListener('deviceorientation',onOrient);
+  window.removeEventListener('deviceorientation',onOrient); window.removeEventListener('deviceorientationabsolute',onOrient);
   if(!gyro.on) return; gyro.on=false;
   brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,0,0);
   camera.position.copy(gyro.saved.pos); camera.quaternion.copy(gyro.saved.q); controls.enabled=true;
