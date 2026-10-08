@@ -115,7 +115,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="loading" id="loading">Cargando modelo 3D…</div>
     <div class="brand">
       <h1>Atlas del Cerebro</h1>
-      <p>Modelo anatómico MNI152 · 6 regiones · v7</p>
+      <p>Modelo anatómico MNI152 · 6 regiones · v8</p>
     </div>
     <div class="tag" id="tag" hidden></div>
     <div class="arbox" id="ar" hidden>
@@ -596,7 +596,12 @@ async function startMarker(){
     const [w,h]=dimensions[0];
     mk.post=new THREE.Matrix4().compose(new THREE.Vector3(w/2,w/2+(h-w)/2,0),new THREE.Quaternion(),new THREE.Vector3(w,w,w));
     mk.on=true; camera.position.set(0,0,0); camera.quaternion.identity(); mkProj();
-    await mk.ctrl.dummyRun(v); mk.ctrl.processVideo(v);
+    // Copiamos cada fotograma a un lienzo: leer el vídeo directamente falla en algunos navegadores
+    const cv=document.createElement('canvas'); cv.width=v.videoWidth; cv.height=v.videoHeight;
+    const g=cv.getContext('2d',{willReadFrequently:true});
+    mk.copy=true; (function copy(){ if(!mk.copy) return; if(v.readyState>=2) g.drawImage(v,0,0,cv.width,cv.height); requestAnimationFrame(copy); })();
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    await mk.ctrl.dummyRun(cv); mk.ctrl.processVideo(cv);
     $('arMarker').textContent='Quitar tarjeta'; $('arReplace').hidden=true;
     arHint.textContent='Apunta la cámara a la tarjeta del Atlas del Cerebro (impresa o en otra pantalla).';
   }catch(e){
@@ -604,6 +609,7 @@ async function startMarker(){
   }finally{ mk.loading=false; }
 }
 function stopMarker(){
+  mk.copy=false;
   if(!mk.on) return; mk.on=false; mk.found=false;
   try{ mk.ctrl.stopProcessVideo(); }catch{}
   scene.add(brainRoot); brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,0,0); brainRoot.scale.setScalar(10);
