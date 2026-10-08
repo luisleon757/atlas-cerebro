@@ -45,6 +45,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 .5rem}
 .chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.eyebrow2{margin-top:1rem}
 .chip{display:flex;align-items:center;gap:.5rem;font:inherit;font-size:.9rem;text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:.5rem .6rem;cursor:pointer;min-width:0}
 .chip .dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--c)}
 .chip:hover{border-color:var(--c)}
@@ -115,7 +116,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="loading" id="loading">Cargando modelo 3D…</div>
     <div class="brand">
       <h1>Atlas del Cerebro</h1>
-      <p>Modelo anatómico MNI152 · 6 regiones · v8</p>
+      <p>Modelo anatómico MNI152 · 12 regiones · v9</p>
     </div>
     <div class="tag" id="tag" hidden></div>
     <div class="arbox" id="ar" hidden>
@@ -128,6 +129,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="tools">
       <button class="btn ar" id="btnAR">Ver en realidad aumentada</button>
       <button class="btn" id="btnColors" aria-pressed="true">Colores</button>
+      <button class="btn" id="btnInside" aria-pressed="false">Ver por dentro</button>
       <button class="btn" data-view="lateral">Lateral</button>
       <button class="btn" data-view="superior">Superior</button>
       <button class="btn" data-view="posterior">Posterior</button>
@@ -143,8 +145,10 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     </div>
 
     <div id="explore">
-      <p class="eyebrow">Regiones</p>
+      <p class="eyebrow">Corteza, cerebelo y tronco</p>
       <div class="chips" id="chips"></div>
+      <p class="eyebrow eyebrow2">Estructuras internas</p>
+      <div class="chips" id="chipsIn"></div>
     </div>
     <article class="info" id="info"></article>
 
@@ -156,7 +160,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
       <button class="primary" id="next" hidden>Siguiente</button>
     </div>
 
-    <p class="foot">Modelo: superficie cortical <em>fsaverage</em> (FreeSurfer) con el atlas de Desikan-Killiany agrupado por lóbulos; cerebelo y tronco extraídos de la plantilla MNI152 2009. La ínsula, el cíngulo y la cara medial sin lóbulo aparecen en gris. Trabajo de investigación de bachillerato.</p>
+    <p class="foot">Modelo: superficie cortical <em>fsaverage</em> (FreeSurfer) con el atlas de Desikan-Killiany agrupado por lóbulos; cerebelo y tronco extraídos de la plantilla MNI152 2009. La ínsula, el cíngulo y la cara medial sin lóbulo aparecen en gris. Estructuras internas: atlas subcortical probabilístico de Harvard-Oxford (FSL) sobre MNI152; el cuerpo calloso se extrajo de la sustancia blanca de la línea media. Trabajo de investigación de bachillerato.</p>
   </aside>
 </div>
 
@@ -178,6 +182,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
       <button class="btn" id="arReplace">Recolocar</button>
       <button class="btn" id="arMarker">Usar tarjeta</button>
       <button class="btn" id="arShowCard">Ver tarjeta</button>
+      <button class="btn" id="arInside" aria-pressed="false">Ver por dentro</button>
     </div>
   </div>
 </div>
@@ -218,7 +223,37 @@ const REGIONS = [
     where:"Base del encéfalo; une el cerebro con la médula espinal. Lo forman el mesencéfalo, la protuberancia y el bulbo raquídeo.",
     text:"Controla las funciones vitales que funcionan solas, sin que tengamos que pensar en ellas.",
     list:["Respiración, ritmo cardíaco y presión arterial","Ciclo de sueño y vigilia","Reflejos como tragar, toser o estornudar","Paso de todas las vías entre cerebro y cuerpo"],
-    fact:"En el bulbo raquídeo se cruzan la mayoría de las vías motoras. Por eso el hemisferio izquierdo mueve el lado derecho del cuerpo." }
+    fact:"En el bulbo raquídeo se cruzan la mayoría de las vías motoras. Por eso el hemisferio izquierdo mueve el lado derecho del cuerpo." },
+  { id:"hipocampo", inner:true, name:"Hipocampo", color:"#ff5fa2",
+    where:"En la cara interna de cada lóbulo temporal, curvado como un caballito de mar (eso significa «hipocampo» en griego).",
+    text:"Convierte lo que vivimos en recuerdos duraderos y nos ayuda a orientarnos en el espacio.",
+    list:["Formación de recuerdos nuevos (memoria declarativa: hechos y vivencias)","Paso de la memoria a corto plazo a la de largo plazo","Mapa mental del espacio y orientación","Es de las primeras zonas que se dañan en el alzhéimer"],
+    fact:"En los taxistas de Londres, que memorizan miles de calles, la parte posterior del hipocampo es más grande que en otras personas. El cerebro cambia con lo que aprendemos." },
+  { id:"amigdala", inner:true, name:"Amígdala", color:"#ff3b30",
+    where:"Delante del hipocampo, en la parte interna de cada lóbulo temporal. Tiene forma y tamaño de almendra.",
+    text:"Detecta peligros y pone «etiqueta emocional» a lo que vivimos, sobre todo el miedo.",
+    list:["Reconocimiento del miedo y de las amenazas","Respuesta rápida de lucha o huida","Hace que los recuerdos emocionales sean más intensos","Lectura de emociones en las caras de los demás"],
+    fact:"La paciente S. M. tiene dañadas las dos amígdalas por una enfermedad rara. No siente miedo: puede coger serpientes o pasear de noche por zonas peligrosas sin inquietarse." },
+  { id:"talamo", inner:true, name:"Tálamo", color:"#00b8d9",
+    where:"En el centro del cerebro, a ambos lados del tercer ventrículo, encima del tronco encefálico.",
+    text:"Es la gran «estación de relevo»: casi toda la información de los sentidos pasa por él antes de llegar a la corteza.",
+    list:["Reparte la información de la vista, el oído, el tacto y el gusto a la corteza","Regula el nivel de alerta y el sueño","Participa en la atención y en el movimiento","El olfato es el único sentido que no pasa primero por él"],
+    fact:"Durante el sueño profundo el tálamo «cierra la puerta» a muchas señales de los sentidos. Por eso no notamos los ruidos suaves mientras dormimos." },
+  { id:"basales", inner:true, name:"Núcleos basales", color:"#7ccf3a",
+    where:"Debajo de la corteza, a los lados del tálamo. Incluyen el núcleo caudado, el putamen, el globo pálido y el núcleo accumbens.",
+    text:"Seleccionan qué movimientos hacer y cuáles frenar, y ayudan a crear hábitos y a sentir recompensa.",
+    list:["Inicio y control del movimiento voluntario","Formación de hábitos y rutinas","Motivación y recompensa (núcleo accumbens)","Su fallo causa el párkinson y la enfermedad de Huntington"],
+    fact:"En el párkinson mueren las neuronas que envían dopamina a los núcleos basales. Los síntomas aparecen cuando ya se ha perdido más de la mitad de esas neuronas." },
+  { id:"calloso", inner:true, name:"Cuerpo calloso", color:"#e0a458",
+    where:"En la línea media, en el fondo de la cisura que separa los dos hemisferios, por encima de los ventrículos.",
+    text:"Es un puente de fibras nerviosas que une los dos hemisferios para que trabajen juntos.",
+    list:["Comunica el hemisferio izquierdo con el derecho","Es el haz de sustancia blanca más grande del encéfalo","Permite coordinar las dos manos y combinar información de ambos lados"],
+    fact:"Tiene unos 200 millones de axones. En los pacientes de «cerebro dividido», a los que se cortó para tratar la epilepsia, cada hemisferio puede actuar como si no supiera lo que hace el otro." },
+  { id:"ventriculos", inner:true, name:"Ventrículos", color:"#4fc3f7",
+    where:"Cavidades huecas en el interior del cerebro: dos laterales (uno por hemisferio, los que se ven en el modelo), el tercero y el cuarto, comunicadas entre sí.",
+    text:"Están llenos de líquido cefalorraquídeo, que protege el cerebro como un cojín y lo limpia de desechos.",
+    list:["Producen líquido cefalorraquídeo (plexos coroideos)","Amortiguan golpes y hacen que el cerebro «flote»","Reparten nutrientes y retiran desechos","Si el líquido no circula se produce hidrocefalia"],
+    fact:"Fabricamos aproximadamente medio litro de líquido cefalorraquídeo al día, pero solo hay unos 150 ml a la vez: se renueva unas tres o cuatro veces cada día." }
 ];
 const RID = Object.fromEntries(REGIONS.map((r,i)=>[r.id,i]));
 
@@ -248,6 +283,16 @@ const meshes=[]; // {mesh, r}
 let brainRoot=null;
 const ANCHORS=REGIONS.map(()=>[]);
 
+let inside=false;
+const isInner=r=>r>=0&&!!REGIONS[r].inner;
+function applyInside(){
+  for(const {mesh,r} of meshes){
+    if(isInner(r)){ mesh.visible=inside; continue; }
+    const m=mesh.material; m.transparent=inside; m.opacity=inside?0.13:1; m.depthWrite=!inside; m.needsUpdate=true;
+  }
+  for(const id of ['btnInside','arInside']) $(id)?.setAttribute('aria-pressed',String(inside));
+}
+function setInside(v){ inside=v; applyInside(); paint(); }
 function paint(k=1){
   for(const {mesh,r} of meshes){
     const c=mesh.material.color;
@@ -267,16 +312,17 @@ else new THREE.GLTFLoader().parse(GLB,'',gltf=>{
     if(!o.isMesh) return;
     const r=RID[o.name] ?? RID[o.parent?.name] ?? -1;
     o.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.6,metalness:0});
+    if(isInner(r)) o.renderOrder=-1;
     meshes.push({mesh:o,r});
     if(r<0) return;
     // anclas para la etiqueta: un punto de superficie por hemisferio
     const pa=o.geometry.attributes.position, v=new THREE.Vector3();
-    const sides=(r===RID.cerebelo||r===RID.tronco)?[0]:[-1,1];
+    const sides=(r===RID.cerebelo||r===RID.tronco||r===RID.calloso||r===RID.ventriculos)?[0]:[-1,1];
     for(const s of sides){
       const cen=new THREE.Vector3(); let n=0;
       for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(o.matrixWorld); if(s===0||Math.sign(v.x)===s){cen.add(v);n++;}}
       cen.divideScalar(n);
-      const out=cen.clone(); if(s) out.x+=s*0.6; out.normalize();
+      const out=cen.clone(); if(s) out.x+=s*0.6; if(isInner(r)) out.set(s*0.3,1,0); out.normalize();
       let best=null,bd=-Infinity;
       for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(o.matrixWorld);
         if(s&&Math.sign(v.x)!==s) continue;
@@ -285,19 +331,19 @@ else new THREE.GLTFLoader().parse(GLB,'',gltf=>{
     }
   });
   document.getElementById('loading').remove();
-  paint(); fitCamera();
+  applyInside(); paint(); fitCamera();
 },()=>{document.getElementById('loading').textContent='No se pudo cargar el modelo 3D.';});
 
 /* ---------- Panel ---------- */
 const $=id=>document.getElementById(id);
 const chips=$('chips'), info=$('info'), tag=$('tag');
 REGIONS.forEach((r,i)=>{
-  const b=document.createElement('button'); b.className='chip'; b.style.setProperty('--c',r.color);
+  const b=document.createElement('button'); b.className='chip'; b.style.setProperty('--c',r.color); b.dataset.i=i;
   b.innerHTML=`<span class="dot"></span><span>${r.name}</span>`; b.setAttribute('aria-pressed','false');
-  b.onclick=()=>select(selected===i?-1:i); chips.append(b);
+  b.onclick=()=>select(selected===i?-1:i); (r.inner?$('chipsIn'):chips).append(b);
 });
 function renderInfo(){
-  [...chips.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===selected)));
+  document.querySelectorAll('#explore .chip').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===selected)));
   if(selected<0){
     info.style.removeProperty('--c');
     info.innerHTML=`<p class="eyebrow">Cómo usarlo</p><p class="intro"><strong>Toca una zona del cerebro</strong> o elige una región de la lista para iluminarla y leer qué hace. Gíralo con el dedo para verlo por todos lados, o pulsa <strong>Ver en realidad aumentada</strong> para ponerlo encima de tu mesa.</p>
@@ -309,10 +355,12 @@ function renderInfo(){
     <ul>${r.list.map(x=>`<li>${x}</li>`).join('')}</ul><div class="fact"><b>Dato curioso</b>${r.fact}</div>`;
 }
 function select(i){
+  if(isInner(i)&&!inside){ inside=true; applyInside(); }
   selected=i; paint(); renderInfo(); renderARCard();
   if(i>=0){ controls.autoRotate=false; tag.hidden=mode!=='explore'||xr.on||cam.on; tag.textContent=REGIONS[i].name; tag.style.background=REGIONS[i].color; }
   else tag.hidden=true;
 }
+$('btnInside').onclick=()=>setInside(!inside);
 $('btnColors').onclick=e=>{showAll=!showAll;e.currentTarget.setAttribute('aria-pressed',String(showAll));paint();};
 
 /* vistas (glTF: anterior = -Z, arriba = +Y) */
@@ -323,7 +371,11 @@ function goView(name){ const to=new THREE.Vector3(...VIEWS[name]).setLength(view
 function fitCamera(){ camera.position.set(...VIEWS.lateral).setLength(viewDist()); }
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{controls.autoRotate=false; goView(b.dataset.view);});
 
-/* toque para seleccionar */
+/* toque para seleccionar (con «ver por dentro», primero las estructuras internas) */
+function pick(){
+  if(inside){ const h=ray.intersectObjects(meshes.filter(m=>isInner(m.r)).map(m=>m.mesh))[0]; if(h) return h; }
+  return ray.intersectObjects(meshes.filter(m=>m.mesh.visible).map(m=>m.mesh))[0];
+}
 const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(); let down=null;
 renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];controls.autoRotate=false;});
 renderer.domElement.addEventListener('pointerup',e=>{
@@ -333,7 +385,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
   const rect=renderer.domElement.getBoundingClientRect();
   ndc.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
   ray.setFromCamera(ndc,camera);
-  const hit=ray.intersectObjects(meshes.map(m=>m.mesh))[0];
+  const hit=pick();
   if(!hit) return select(-1);
   const m=meshes.find(m=>m.mesh===hit.object);
   select(m.r);
@@ -344,26 +396,28 @@ let qTarget=-1, qRight=0, qTotal=0, qBag=[];
 function nextQuestion(){
   if(!qBag.length) qBag=[...REGIONS.keys()].sort(()=>Math.random()-0.5);
   qTarget=qBag.pop(); if(qTarget===selected && qBag.length) {qBag.unshift(qTarget); qTarget=qBag.pop();}
-  selected=qTarget; paint();
+  selected=qTarget; setInside(isInner(qTarget));
   $('feedback').textContent=''; $('feedback').className='feedback'; $('next').hidden=true;
   const a=$('answers'); a.innerHTML='';
-  REGIONS.forEach((r,i)=>{const b=document.createElement('button'); b.textContent=r.name; b.onclick=()=>answer(i,b); a.append(b);});
+  REGIONS.forEach((r,i)=>{ if(!!r.inner!==isInner(qTarget)) return; const b=document.createElement('button'); b.dataset.i=i; b.textContent=r.name; b.onclick=()=>answer(i,b); a.append(b);});
   $('score').textContent=qTotal?`· ${qRight}/${qTotal}`:'';
   const pt=ANCHORS[qTarget][0]; if(!pt) return;
   const dir=pt.clone().sub(controls.target); dir.y=Math.max(dir.y,-0.3);
   if(qTarget===RID.tronco) dir.set(-0.6,-0.2,-1);
   if(qTarget===RID.cerebelo) dir.set(-0.5,-0.1,1);
+  if(isInner(qTarget)) dir.set(-1,0.35,-0.25);
   tween={from:camera.position.clone(),to:controls.target.clone().add(dir.normalize().multiplyScalar(viewDist())),t0:performance.now()};
 }
 function answer(i,btn){
   qTotal++; const ok=i===qTarget; if(ok) qRight++;
-  [...$('answers').children].forEach((b,j)=>{b.disabled=true; if(j===qTarget) b.classList.add('right');});
+  [...$('answers').children].forEach(b=>{b.disabled=true; if(+b.dataset.i===qTarget) b.classList.add('right');});
   if(!ok) btn.classList.add('wrong');
   const fb=$('feedback'); fb.className='feedback '+(ok?'ok':'bad');
-  fb.textContent=(ok?'¡Correcto! ':`Era el ${REGIONS[qTarget].name.toLowerCase()}. `)+REGIONS[qTarget].text;
+  fb.textContent=(ok?'¡Correcto! ':`Era ${art(REGIONS[qTarget])} ${REGIONS[qTarget].name.toLowerCase()}. `)+REGIONS[qTarget].text;
   $('score').textContent=`· ${qRight}/${qTotal}`; $('next').hidden=false; $('next').focus();
 }
 $('next').onclick=nextQuestion;
+function art(r){ return ({amigdala:'la',ventriculos:'los',basales:'los'})[r.id]||'el'; }
 function setMode(m){
   mode=m;
   $('tabExplore').setAttribute('aria-selected',String(m==='explore')); $('tabQuiz').setAttribute('aria-selected',String(m==='quiz'));
@@ -418,9 +472,10 @@ const arui=$('arui'), arHint=$('arHint'), arCard=$('arCard'), arChips=$('arChips
 const xr={on:false,session:null,hitSource:null,placed:false,reticle:null,saved:null,yaw:0,size:2};
 const cam={on:false,stream:null};
 REGIONS.forEach((r,i)=>{const b=document.createElement('button'); b.className='chip'; b.style.setProperty('--c',r.color);
-  b.innerHTML=`<span class="dot"></span><span>${r.name}</span>`; b.onclick=()=>select(selected===i?-1:i); arChips.append(b);});
+  b.dataset.i=i; b.innerHTML=`<span class="dot"></span><span>${r.name}</span>`; b.onclick=()=>select(selected===i?-1:i); arChips.append(b);});
+$('arInside').onclick=()=>setInside(!inside);
 function renderARCard(){
-  [...arChips.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===selected)));
+  [...arChips.children].forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===selected)));
   if(selected<0){ arCard.hidden=true; return; }
   const r=REGIONS[selected]; arCard.hidden=false; arCard.style.setProperty('--c',r.color);
   arCard.innerHTML=`<h3>${r.name}</h3><p>${r.text}</p><p class="arfact">${r.fact}</p>`;
@@ -473,7 +528,7 @@ async function startXR(){
     }
     const m=new THREE.Matrix4().extractRotation(ctrl.matrixWorld);
     ray.ray.origin.setFromMatrixPosition(ctrl.matrixWorld); ray.ray.direction.set(0,0,-1).applyMatrix4(m);
-    const hit=ray.intersectObjects(meshes.map(m=>m.mesh))[0];
+    const hit=pick();
     if(hit) select(meshes.find(m=>m.mesh===hit.object).r);
   });
   session.addEventListener('end',endXR,{once:true});
