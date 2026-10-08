@@ -77,6 +77,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .arbar{padding:12px 16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .arbar p{margin:0;flex:1 1 240px;font-size:.9rem;color:var(--muted)}
 .arbtns{display:flex;gap:8px}
+.cardview{position:fixed;inset:0;z-index:40;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;color:#16202b;text-align:center}
+.cardview img{max-width:min(92vw,80vh);max-height:80vh}
+.cardview p{margin:0;font-size:.95rem}
 #camVideo{display:none}
 body.camera-ar .stage{position:fixed;inset:0;z-index:20;height:auto;background:#000}
 body.camera-ar #camVideo{display:block;position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
@@ -112,7 +115,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="loading" id="loading">Cargando modelo 3D…</div>
     <div class="brand">
       <h1>Atlas del Cerebro</h1>
-      <p>Modelo anatómico MNI152 · 6 regiones · v6</p>
+      <p>Modelo anatómico MNI152 · 6 regiones · v7</p>
     </div>
     <div class="tag" id="tag" hidden></div>
     <div class="arbox" id="ar" hidden>
@@ -157,6 +160,11 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
   </aside>
 </div>
 
+<div class="cardview" id="cardView" hidden>
+  <img src="tarjeta.png" alt="Tarjeta marcador del Atlas del Cerebro">
+  <p>Imprime esta tarjeta o ábrela en otro móvil: <strong>luisleon757.github.io/atlas-cerebro/tarjeta.png</strong></p>
+  <button class="primary" id="cardClose">Cerrar</button>
+</div>
 <div class="arui" id="arui" hidden>
   <div class="artop"><p id="arHint"></p><button class="btn" id="arExit">Salir de RA</button></div>
   <div class="arbottom">
@@ -168,6 +176,8 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
       <button class="btn" id="arSmall" aria-label="Más pequeño">− Tamaño</button>
       <button class="btn" id="arBig" aria-label="Más grande">+ Tamaño</button>
       <button class="btn" id="arReplace">Recolocar</button>
+      <button class="btn" id="arMarker">Usar tarjeta</button>
+      <button class="btn" id="arShowCard">Ver tarjeta</button>
     </div>
   </div>
 </div>
@@ -319,6 +329,7 @@ renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY
 renderer.domElement.addEventListener('pointerup',e=>{
   if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6) return; down=null;
   if(mode!=='explore') return;
+  if(mk.on&&!mk.found) return;
   const rect=renderer.domElement.getBoundingClientRect();
   ndc.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
   ray.setFromCamera(ndc,camera);
@@ -479,13 +490,14 @@ function endXR(){
   const sv=xr.saved; brainRoot.position.copy(sv.pos); brainRoot.rotation.copy(sv.rot); brainRoot.scale.copy(sv.scale); brainRoot.visible=true;
   controls.enabled=true; showARUI(false); resize(); select(selected);
 }
-function arTurn(d){ if(gyro.on){ brainRoot.rotation.y+=d; } else if(xr.on){ xr.yaw+=d; brainRoot.rotation.y=xr.yaw; } else { controls.autoRotate=false; const o=camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0,1,0),-d); camera.position.copy(controls.target).add(o); } }
-function arZoom(f){ if(gyro.on){ gyro.dist=Math.min(8,Math.max(1.6,gyro.dist/f)); const dir=brainRoot.position.clone().normalize(); brainRoot.position.copy(dir.multiplyScalar(gyro.dist)); return; }
+function arTurn(d){ if(mk.on){ brainRoot.rotation.y+=d; } else if(gyro.on){ brainRoot.rotation.y+=d; } else if(xr.on){ xr.yaw+=d; brainRoot.rotation.y=xr.yaw; } else { controls.autoRotate=false; const o=camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0,1,0),-d); camera.position.copy(controls.target).add(o); } }
+function arZoom(f){ if(mk.on){ const sc=Math.min(14,Math.max(2,brainRoot.scale.x*f)); brainRoot.scale.setScalar(sc); mk.holder.position.z=0.075*sc; return; }
+  if(gyro.on){ gyro.dist=Math.min(8,Math.max(1.6,gyro.dist/f)); const dir=brainRoot.position.clone().normalize(); brainRoot.position.copy(dir.multiplyScalar(gyro.dist)); return; }
   if(xr.on){ const base=brainRoot.position.y-0.075*xr.size; xr.size=Math.min(6,Math.max(0.6,xr.size*f)); brainRoot.scale.setScalar(xr.size); brainRoot.position.y=base+0.075*xr.size; }
   else { const o=camera.position.clone().sub(controls.target); o.setLength(Math.min(controls.maxDistance,Math.max(controls.minDistance,o.length()/f))); camera.position.copy(controls.target).add(o); } }
 $('arLeft').onclick=()=>arTurn(-Math.PI/8); $('arRight').onclick=()=>arTurn(Math.PI/8);
 $('arBig').onclick=()=>arZoom(1.25); $('arSmall').onclick=()=>arZoom(0.8);
-$('arReplace').onclick=()=>{ if(gyro.on){ placeInFront(); return; } if(!xr.on) return; xr.placed=false; brainRoot.visible=false; $('arPlaced').hidden=true; arHint.textContent='Apunta a la mesa y toca la pantalla cuando veas el círculo blanco.'; };
+$('arReplace').onclick=()=>{ if(mk.on) return; if(gyro.on){ placeInFront(); return; } if(!xr.on) return; xr.placed=false; brainRoot.visible=false; $('arPlaced').hidden=true; arHint.textContent='Apunta a la mesa y toca la pantalla cuando veas el círculo blanco.'; };
 $('arExit').onclick=()=>{ if(xr.on) xr.session.end(); else stopCamera(); };
 arui.addEventListener('beforexrselect',e=>e.preventDefault());
 
@@ -514,7 +526,8 @@ function startGyro(){
   gyro.ori=null; gyro.seen=false; gyro.noYaw=false;
   window.addEventListener('deviceorientation',onOrient); window.addEventListener('deviceorientationabsolute',onOrient);
   setTimeout(()=>{ if(!cam.on) return;
-    if(!gyro.ori){ arHint.textContent='Esta tablet no envía datos de giroscopio al navegador, por eso el cerebro flota. Gíralo con el dedo y toca una zona para iluminarla.'; return; }
+    if(mk.on) return;
+    if(!gyro.ori){ startMarker(); return; }
     gyro.on=true; controls.enabled=false;
     gyro.saved={pos:camera.position.clone(),q:camera.quaternion.clone()};
     camera.position.set(0,0,0); orientQuat(camera.quaternion); placeInFront();
@@ -536,16 +549,75 @@ function stopGyro(){
   brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,0,0);
   camera.position.copy(gyro.saved.pos); camera.quaternion.copy(gyro.saved.q); controls.enabled=true;
 }
-renderer.domElement.addEventListener('pointerdown',e=>{ if(gyro.on) gyro.drag=[e.clientX,e.clientY]; });
-renderer.domElement.addEventListener('pointermove',e=>{ if(!gyro.on||!gyro.drag) return;
+renderer.domElement.addEventListener('pointerdown',e=>{ if(gyro.on||mk.on) gyro.drag=[e.clientX,e.clientY]; });
+renderer.domElement.addEventListener('pointermove',e=>{ if(!(gyro.on||mk.on)||!gyro.drag) return;
   const dx=e.clientX-gyro.drag[0], dy=e.clientY-gyro.drag[1]; gyro.drag=[e.clientX,e.clientY];
-  brainRoot.rotation.y+=dx*0.01; brainRoot.rotation.x=Math.max(-1.2,Math.min(1.2,brainRoot.rotation.x+dy*0.01)); });
+  brainRoot.rotation.y+=dx*0.01; if(!mk.on) brainRoot.rotation.x=Math.max(-1.2,Math.min(1.2,brainRoot.rotation.x+dy*0.01)); });
 window.addEventListener('pointerup',()=>{ gyro.drag=null; });
 function stopCamera(){
-  stopGyro(); cam.on=false; cam.stream?.getTracks().forEach(t=>t.stop()); cam.stream=null; $('camVideo').srcObject=null;
+  stopMarker(); stopGyro(); cam.on=false; cam.stream?.getTracks().forEach(t=>t.stop()); cam.stream=null; $('camVideo').srcObject=null;
   document.body.classList.remove('camera-ar'); $('arReplace').hidden=false; showARUI(false);
   requestAnimationFrame(()=>{ resize(); fitCamera(); select(selected); });
 }
+/* Marcador: el cerebro se pega a la tarjeta (MindAR, solo cámara) */
+const mk={on:false,loading:false,ctrl:null,anchor:null,holder:null,post:null,found:false,saved:null};
+function loadScript(src){ return new Promise((ok,ko)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=ko; document.head.append(s); }); }
+function mkProj(){
+  const proj=mk.ctrl.getProjectionMatrix(), cw=stage.clientWidth, ch=stage.clientHeight;
+  const inR=mk.ctrl.inputWidth/mk.ctrl.inputHeight; let adj=1;
+  if(inR<=cw/ch) adj=ch/(cw/mk.ctrl.inputWidth*mk.ctrl.inputHeight);
+  camera.fov=2*Math.atan(1/proj[5]*adj)*180/Math.PI; camera.near=proj[14]/(proj[10]-1); camera.far=proj[14]/(proj[10]+1);
+  camera.aspect=cw/ch; camera.updateProjectionMatrix();
+}
+async function startMarker(){
+  if(!cam.on||mk.on||mk.loading) return; mk.loading=true;
+  arHint.textContent='Preparando el reconocimiento de la tarjeta…';
+  try{
+    if(!window.TARJETA_MIND) await loadScript('tarjeta-datos.js');
+    const mod=await import('https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js');
+    const Controller=mod.Controller||window.MINDAR.IMAGE.Controller;
+    const v=$('camVideo'); if(!v.videoWidth) await new Promise(r=>v.addEventListener('loadedmetadata',r,{once:true}));
+    if(!cam.on) return;
+    stopGyro();
+    mk.saved={pos:camera.position.clone(),q:camera.quaternion.clone()};
+    controls.enabled=false; camera.position.set(0,0,0); camera.quaternion.identity();
+    if(!mk.anchor){ mk.anchor=new THREE.Group(); mk.anchor.matrixAutoUpdate=false; mk.holder=new THREE.Group(); mk.holder.rotation.x=Math.PI/2; mk.anchor.add(mk.holder); scene.add(mk.anchor); }
+    mk.anchor.visible=false; mk.found=false;
+    mk.holder.add(brainRoot); brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,Math.PI/2,0); brainRoot.scale.setScalar(4.5); mk.holder.position.z=0.075*4.5;
+    mk.ctrl=new Controller({inputWidth:v.videoWidth,inputHeight:v.videoHeight,filterMinCF:0.0001,filterBeta:0.001,warmupTolerance:5,missTolerance:5,
+      onUpdate:d=>{
+        if(d.type!=='updateMatrix') return;
+        if(d.worldMatrix){ mk.anchor.matrix.fromArray(d.worldMatrix).multiply(mk.post); mk.anchor.visible=true;
+          if(!mk.found){ mk.found=true; arHint.textContent='¡Tarjeta encontrada! Toca una zona del cerebro para iluminarla. Arrastra con el dedo para girarlo.'; } }
+        else { mk.anchor.visible=false; if(mk.found){ mk.found=false; arHint.textContent='Apunta la cámara a la tarjeta del Atlas del Cerebro.'; } }
+      }});
+    const b=atob(window.TARJETA_MIND), u=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
+    const {dimensions}=await mk.ctrl.addImageTargets(URL.createObjectURL(new Blob([u])));
+    const [w,h]=dimensions[0];
+    mk.post=new THREE.Matrix4().compose(new THREE.Vector3(w/2,w/2+(h-w)/2,0),new THREE.Quaternion(),new THREE.Vector3(w,w,w));
+    mk.on=true; camera.position.set(0,0,0); camera.quaternion.identity(); mkProj();
+    await mk.ctrl.dummyRun(v); mk.ctrl.processVideo(v);
+    $('arMarker').textContent='Quitar tarjeta'; $('arReplace').hidden=true;
+    arHint.textContent='Apunta la cámara a la tarjeta del Atlas del Cerebro (impresa o en otra pantalla).';
+  }catch(e){
+    console.warn('marcador',e); if(mk.saved&&!mk.on){ scene.add(brainRoot); brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,0,0); brainRoot.scale.setScalar(10); camera.position.copy(mk.saved.pos); camera.quaternion.copy(mk.saved.q); controls.enabled=true; } arHint.textContent='No se pudo cargar el reconocimiento de la tarjeta. Gira el cerebro con el dedo.';
+  }finally{ mk.loading=false; }
+}
+function stopMarker(){
+  if(!mk.on) return; mk.on=false; mk.found=false;
+  try{ mk.ctrl.stopProcessVideo(); }catch{}
+  scene.add(brainRoot); brainRoot.position.set(0,0,0); brainRoot.rotation.set(0,0,0); brainRoot.scale.setScalar(10);
+  mk.anchor.visible=false;
+  camera.fov=35; camera.near=0.1; camera.far=50; camera.position.copy(mk.saved.pos); camera.quaternion.copy(mk.saved.q);
+  controls.enabled=true; resize(); $('arMarker').textContent='Usar tarjeta';
+}
+$('arMarker').onclick=()=>{
+  if(mk.on){ stopMarker(); fitCamera(); arHint.textContent='Toca una zona del cerebro para iluminarla. Gíralo con el dedo.'; startGyro(); }
+  else startMarker();
+};
+$('arShowCard').onclick=()=>{ $('cardView').hidden=false; };
+$('cardClose').onclick=()=>{ $('cardView').hidden=true; };
+
 function showARUI(on,hint){
   arui.hidden=!on; if(hint) arHint.textContent=hint;
   if(!on) $('arPlaced').hidden=true;
@@ -553,14 +625,14 @@ function showARUI(on,hint){
 }
 
 /* ---------- Bucle ---------- */
-function resize(){const w=stage.clientWidth,h=stage.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); if(mk.on) mkProj();}
 new ResizeObserver(resize).observe(stage); resize();
 const tmp=new THREE.Vector3();
 function loop(t,frame){
   if(xr.on){ xrFrame(frame); if(selected>=0) paint(reduce?1.1:1.05+0.2*Math.sin(t/260)); renderer.render(scene,camera); return; }
   if(tween){ let k=Math.min(1,(t-tween.t0)/650); k=k<.5?2*k*k:1-(-2*k+2)**2/2;
     camera.position.lerpVectors(tween.from,tween.to,k); if(k>=1) tween=null; }
-  if(gyro.on){ if(gyro.ori) orientQuat(camera.quaternion); } else controls.update();
+  if(mk.on||mk.loading){} else if(gyro.on){ if(gyro.ori) orientQuat(camera.quaternion); } else controls.update();
   if(selected>=0) paint(reduce?1.1:1.05+0.2*Math.sin(t/260));
   renderer.render(scene,camera);
   if(selected>=0 && !tag.hidden && ANCHORS[selected].length){
