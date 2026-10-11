@@ -1,0 +1,143 @@
+# EXPLICACIONES DEL ATLAS DEL CEREBRO
+# Aquí puedes cambiar los textos de cada parte. La web los lee de este archivo.
+#
+# Cómo funciona:
+#  - Cada parte empieza con su código entre corchetes, por ejemplo [frontal]. No cambies los códigos.
+#  - Debajo van los campos. Cambia solo lo que hay después de los dos puntos:
+#      Nombre:        el nombre que sale en los botones y en la etiqueta
+#      Dónde está:    la frase pequeña en gris sobre su posición
+#      Explicación:   el texto principal (también sale en el quiz y en la RA)
+#      Funciones:     una lista; cada punto en su propia línea empezando por "- "
+#      Dato curioso:  el recuadro final (también sale en la RA)
+#  - Puedes añadir o quitar líneas de "Funciones".
+#  - Si dejas un campo vacío o lo borras, la web usa el texto original.
+#  - Las líneas que empiezan por # son comentarios y la web las ignora.
+
+[frontal]
+Nombre: Lóbulo frontal
+Dónde está: Parte delantera de cada hemisferio, por delante del surco central.
+Explicación: Es el «director» del cerebro. Planifica, decide y frena los impulsos. También manda las órdenes de movimiento voluntario a los músculos.
+Funciones:
+- Planificación, toma de decisiones y atención
+- Control de impulsos y personalidad
+- Movimiento voluntario (corteza motora, circunvolución precentral)
+- Producción del habla (área de Broca, casi siempre en el hemisferio izquierdo)
+Dato curioso: En 1848 una barra de hierro atravesó el lóbulo frontal de Phineas Gage. Sobrevivió, pero su personalidad cambió tanto que sus amigos decían que «ya no era Gage».
+
+[parietal]
+Nombre: Lóbulo parietal
+Dónde está: Parte superior y trasera, entre el surco central y el lóbulo occipital.
+Explicación: Recibe e integra las sensaciones del cuerpo y construye el mapa del espacio que nos rodea.
+Funciones:
+- Tacto, temperatura, dolor y posición del cuerpo (corteza somatosensorial, circunvolución poscentral)
+- Orientación espacial y cálculo de distancias
+- Integración de información de distintos sentidos
+- Lectura y cálculo matemático
+Dato curioso: Cada parte del cuerpo tiene su zona en la corteza somatosensorial. Las manos y los labios ocupan muchísimo espacio: es el famoso «homúnculo sensorial».
+
+[temporal]
+Nombre: Lóbulo temporal
+Dónde está: Parte lateral e inferior, por debajo de la cisura de Silvio (a la altura de las orejas).
+Explicación: Procesa lo que oímos, nos ayuda a entender el lenguaje y es clave para guardar recuerdos nuevos.
+Funciones:
+- Audición (corteza auditiva primaria)
+- Comprensión del lenguaje (área de Wernicke)
+- Memoria: el hipocampo está en su cara interna
+- Reconocimiento de caras y objetos
+Dato curioso: Al paciente H. M. le extirparon en 1953 parte de ambos lóbulos temporales para curar su epilepsia. Desde entonces no pudo formar recuerdos nuevos, y su caso cambió lo que sabemos sobre la memoria.
+
+[occipital]
+Nombre: Lóbulo occipital
+Dónde está: Parte trasera del cerebro, encima del cerebelo.
+Explicación: Es el centro de la visión: transforma las señales de los ojos en formas, colores y movimiento.
+Funciones:
+- Corteza visual primaria (V1)
+- Reconocimiento de formas y colores
+- Percepción del movimiento y la profundidad
+Dato curioso: Las vías visuales se cruzan: lo que ves a tu derecha se procesa en el lóbulo occipital izquierdo, y al revés.
+
+[cerebelo]
+Nombre: Cerebelo
+Dónde está: Debajo del lóbulo occipital, detrás del tronco encefálico.
+Explicación: Coordina los movimientos para que sean precisos y suaves, y mantiene el equilibrio y la postura.
+Funciones:
+- Coordinación y precisión de los movimientos
+- Equilibrio y postura
+- Aprendizaje motor (montar en bici, tocar un instrumento)
+Dato curioso: Ocupa solo un 10 % del volumen del encéfalo, pero contiene más de la mitad de sus neuronas: unos 69 000 millones de los 86 000 millones totales.
+
+[tronco]
+Nombre: Tronco encefálico
+Dónde está: Base del encéfalo; une el cerebro con la médula espinal. Lo forman el mesencéfalo, la protuberancia y el bulbo raquídeo.
+Explicación: Controla las funciones vitales que funcionan solas, sin que tengamos que pensar en ellas.
+Funciones:
+- Respiración, ritmo cardíaco y presión arterial
+- Ciclo de sueño y vigilia
+- Reflejos como tragar, toser o estornudar
+- Paso de todas las vías entre cerebro y cuerpo
+Dato curioso: En el bulbo raquídeo se cruzan la mayoría de las vías motoras. Por eso el hemisferio izquierdo mueve el lado derecho del cuerpo.
+
+[hipocampo]
+Nombre: Hipocampo
+Dónde está: En la cara interna de cada lóbulo temporal, curvado como un caballito de mar (eso significa «hipocampo» en griego).
+Explicación: Convierte lo que vivimos en recuerdos duraderos y nos ayuda a orientarnos en el espacio.
+Funciones:
+- Formación de recuerdos nuevos (memoria declarativa: hechos y vivencias)
+- Paso de la memoria a corto plazo a la de largo plazo
+- Mapa mental del espacio y orientación
+- Es de las primeras zonas que se dañan en el alzhéimer
+Dato curioso: En los taxistas de Londres, que memorizan miles de calles, la parte posterior del hipocampo es más grande que en otras personas. El cerebro cambia con lo que aprendemos.
+
+[amigdala]
+Nombre: Amígdala
+Dónde está: Delante del hipocampo, en la parte interna de cada lóbulo temporal. Tiene forma y tamaño de almendra.
+Explicación: Detecta peligros y pone «etiqueta emocional» a lo que vivimos, sobre todo el miedo.
+Funciones:
+- Reconocimiento del miedo y de las amenazas
+- Respuesta rápida de lucha o huida
+- Hace que los recuerdos emocionales sean más intensos
+- Lectura de emociones en las caras de los demás
+Dato curioso: La paciente S. M. tiene dañadas las dos amígdalas por una enfermedad rara. No siente miedo: puede coger serpientes o pasear de noche por zonas peligrosas sin inquietarse.
+
+[talamo]
+Nombre: Tálamo
+Dónde está: En el centro del cerebro, a ambos lados del tercer ventrículo, encima del tronco encefálico.
+Explicación: Es la gran «estación de relevo»: casi toda la información de los sentidos pasa por él antes de llegar a la corteza.
+Funciones:
+- Reparte la información de la vista, el oído, el tacto y el gusto a la corteza
+- Regula el nivel de alerta y el sueño
+- Participa en la atención y en el movimiento
+- El olfato es el único sentido que no pasa primero por él
+Dato curioso: Durante el sueño profundo el tálamo «cierra la puerta» a muchas señales de los sentidos. Por eso no notamos los ruidos suaves mientras dormimos.
+
+[basales]
+Nombre: Núcleos basales
+Dónde está: Debajo de la corteza, a los lados del tálamo. Incluyen el núcleo caudado, el putamen, el globo pálido y el núcleo accumbens.
+Explicación: Seleccionan qué movimientos hacer y cuáles frenar, y ayudan a crear hábitos y a sentir recompensa.
+Funciones:
+- Inicio y control del movimiento voluntario
+- Formación de hábitos y rutinas
+- Motivación y recompensa (núcleo accumbens)
+- Su fallo causa el párkinson y la enfermedad de Huntington
+Dato curioso: En el párkinson mueren las neuronas que envían dopamina a los núcleos basales. Los síntomas aparecen cuando ya se ha perdido más de la mitad de esas neuronas.
+
+[calloso]
+Nombre: Cuerpo calloso
+Dónde está: En la línea media, en el fondo de la cisura que separa los dos hemisferios, por encima de los ventrículos.
+Explicación: Es un puente de fibras nerviosas que une los dos hemisferios para que trabajen juntos.
+Funciones:
+- Comunica el hemisferio izquierdo con el derecho
+- Es el haz de sustancia blanca más grande del encéfalo
+- Permite coordinar las dos manos y combinar información de ambos lados
+Dato curioso: Tiene unos 200 millones de axones. En los pacientes de «cerebro dividido», a los que se cortó para tratar la epilepsia, cada hemisferio puede actuar como si no supiera lo que hace el otro.
+
+[ventriculos]
+Nombre: Ventrículos
+Dónde está: Cavidades huecas en el interior del cerebro: dos laterales (uno por hemisferio, los que se ven en el modelo), el tercero y el cuarto, comunicadas entre sí.
+Explicación: Están llenos de líquido cefalorraquídeo, que protege el cerebro como un cojín y lo limpia de desechos.
+Funciones:
+- Producen líquido cefalorraquídeo (plexos coroideos)
+- Amortiguan golpes y hacen que el cerebro «flote»
+- Reparten nutrientes y retiran desechos
+- Si el líquido no circula se produce hidrocefalia
+Dato curioso: Fabricamos aproximadamente medio litro de líquido cefalorraquídeo al día, pero solo hay unos 150 ml a la vez: se renueva unas tres o cuatro veces cada día.

@@ -116,7 +116,7 @@ body.camera-ar .brand, body.camera-ar .tools{display:none}
     <div class="loading" id="loading">Cargando modelo 3D…</div>
     <div class="brand">
       <h1>Atlas del Cerebro</h1>
-      <p>Modelo anatómico MNI152 · 12 regiones · v9</p>
+      <p>Modelo anatómico MNI152 · 12 regiones · v10</p>
     </div>
     <div class="tag" id="tag" hidden></div>
     <div class="arbox" id="ar" hidden>
@@ -357,7 +357,7 @@ function renderInfo(){
 function select(i){
   if(isInner(i)&&!inside){ inside=true; applyInside(); }
   selected=i; paint(); renderInfo(); renderARCard();
-  if(i>=0){ controls.autoRotate=false; tag.hidden=mode!=='explore'||xr.on||cam.on; tag.textContent=REGIONS[i].name; tag.style.background=REGIONS[i].color; }
+  if(i>=0){ controls.autoRotate=false; tag.hidden=mode!=='explore'||xr.on||cam.on; tag.innerHTML=REGIONS[i].name; tag.style.background=REGIONS[i].color; }
   else tag.hidden=true;
 }
 $('btnInside').onclick=()=>setInside(!inside);
@@ -399,7 +399,7 @@ function nextQuestion(){
   selected=qTarget; setInside(isInner(qTarget));
   $('feedback').textContent=''; $('feedback').className='feedback'; $('next').hidden=true;
   const a=$('answers'); a.innerHTML='';
-  REGIONS.forEach((r,i)=>{ if(!!r.inner!==isInner(qTarget)) return; const b=document.createElement('button'); b.dataset.i=i; b.textContent=r.name; b.onclick=()=>answer(i,b); a.append(b);});
+  REGIONS.forEach((r,i)=>{ if(!!r.inner!==isInner(qTarget)) return; const b=document.createElement('button'); b.dataset.i=i; b.innerHTML=r.name; b.onclick=()=>answer(i,b); a.append(b);});
   $('score').textContent=qTotal?`· ${qRight}/${qTotal}`:'';
   const pt=ANCHORS[qTarget][0]; if(!pt) return;
   const dir=pt.clone().sub(controls.target); dir.y=Math.max(dir.y,-0.3);
@@ -413,7 +413,7 @@ function answer(i,btn){
   [...$('answers').children].forEach(b=>{b.disabled=true; if(+b.dataset.i===qTarget) b.classList.add('right');});
   if(!ok) btn.classList.add('wrong');
   const fb=$('feedback'); fb.className='feedback '+(ok?'ok':'bad');
-  fb.textContent=(ok?'¡Correcto! ':`Era ${art(REGIONS[qTarget])} ${REGIONS[qTarget].name.toLowerCase()}. `)+REGIONS[qTarget].text;
+  fb.innerHTML=(ok?'¡Correcto! ':`Era ${art(REGIONS[qTarget])} ${REGIONS[qTarget].name.toLowerCase()}. `)+REGIONS[qTarget].text;
   $('score').textContent=`· ${qRight}/${qTotal}`; $('next').hidden=false; $('next').focus();
 }
 $('next').onclick=nextQuestion;
@@ -703,6 +703,33 @@ function loop(t,frame){
   }
 }
 renderInfo(); renderARCard(); renderer.setAnimationLoop(loop);
+
+/* ---------- Textos editables: explicaciones.txt ---------- */
+function parseExplicaciones(txt){
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const norm=k=>k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+  const KEYS={'nombre':'name','donde esta':'where','donde':'where','explicacion':'text','funciones':'list','dato curioso':'fact','dato':'fact'};
+  const out={}; let cur=null, last=null;
+  for(const raw of txt.split(/\r?\n/)){
+    const line=raw.trim(); if(!line||line.startsWith('#')) continue;
+    const sec=line.match(/^\[(.+)\]$/); if(sec){ cur=out[norm(sec[1])]={list:[]}; last=null; continue; }
+    if(!cur) continue;
+    if(line.startsWith('-')){ const v=line.replace(/^-\s*/,''); if(v) cur.list.push(esc(v)); last='list'; continue; }
+    const kv=line.match(/^([^:]{2,20}):\s*(.*)$/);
+    if(kv && KEYS[norm(kv[1])]){ last=KEYS[norm(kv[1])]; if(last!=='list') cur[last]=esc(kv[2]); continue; }
+    if(last&&last!=='list') cur[last]=(cur[last]?cur[last]+' ':'')+esc(line);   // continuación de la línea anterior
+  }
+  return out;
+}
+function applyExplicaciones(data){
+  REGIONS.forEach(r=>{ const d=data[r.id]; if(!d) return;
+    for(const k of ['name','where','text','fact']) if(d[k]) r[k]=d[k];
+    if(d.list.length) r.list=d.list; });
+  document.querySelectorAll('.chip[data-i]').forEach(b=>{ b.lastElementChild.innerHTML=REGIONS[+b.dataset.i].name; });
+  if(selected>=0) tag.innerHTML=REGIONS[selected].name;
+  renderInfo(); renderARCard();
+}
+fetch('explicaciones.txt',{cache:'no-cache'}).then(r=>r.ok?r.text():Promise.reject()).then(t=>applyExplicaciones(parseExplicaciones(t))).catch(()=>{});
 </script>
 
 </body></html>
