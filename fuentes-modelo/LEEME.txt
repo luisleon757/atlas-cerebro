@@ -1,0 +1,5 @@
+Programas que generan el modelo 3D del atlas (copia de seguridad).
+ - build.py: cerebro.glb/usdz (fsaverage + Desikan-Killiany, MNI152 2009, Harvard-Oxford)
+ - stl.py, stl2.py: piezas STL para imprimir (impresion-3d-cerebro/)
+ - card.py: tarjeta del marcador de realidad aumentada
+Los datos de entrada (nilearn, MNI152, atlas) no se incluyen por tamaño.

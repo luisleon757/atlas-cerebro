@@ -1,0 +1,7 @@
+Programas que generan la maqueta (copia de seguridad; las rutas son las de la máquina donde se hicieron).
+ - cara.js, recetas.js: caras dibujadas (versión dibujo) y recetas de emociones
+ - view.html, render.js, bands.js: render de la cabeza 3D con las variantes FACS de cada franja
+   (necesita three@0.160.0 y facecap.glb de https://github.com/mrdoob/three.js/tree/r160/examples/models/gltf)
+ - arrugas.py: dibuja las arrugas de cada músculo encima de los renders
+ - pdf.js: monta el PDF de láminas
+ - piezas.py: genera los STL (prisma, separador, base, tapa) con manifold3d

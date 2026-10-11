@@ -1,0 +1,28 @@
+CEREBRO POR PIEZAS PARA IMPRIMIR EN 3D (Ender 3)
+Escala: 50 % del tamaño real. Montado mide unos 8,5 x 7 x 6 cm. Unidades: mm.
+
+Piezas (color sugerido, el mismo que en el atlas web):
+ 01 frontal izquierdo ....... azul
+ 02 parietal izquierdo ...... amarillo
+ 03 temporal izquierdo ...... verde
+ 04 occipital izquierdo ..... morado
+ 05 frontal derecho ......... azul
+ 06 parietal derecho ........ amarillo
+ 07 temporal derecho ........ verde
+ 08 occipital derecho ....... morado
+ 09 cerebelo ................ naranja
+ 10 tronco encefálico ....... rojo/rosa
+
+Ajustes recomendados (Cura o PrusaSlicer):
+ - Altura de capa 0,12-0,16 mm (para que se vean bien las circunvoluciones)
+ - Soportes en árbol (tree), solo tocando la placa si es posible
+ - Relleno 10-15 %
+ - Las piezas ya vienen apoyadas en su cara más estable; puedes girarlas si el laminador propone algo mejor.
+
+Montaje:
+ - Las piezas de cada hemisferio encajan entre sí por sus caras internas; pégalas con pegamento instantáneo o masilla adhesiva (tipo Blu-Tack) si quieres poder desmontarlas.
+ - Los dos hemisferios se unen por la cara plana del centro.
+ - Entre el cerebelo/tronco y los lóbulos hay un pequeño hueco (como en un cerebro real, donde está la tienda del cerebelo): rellénalo con un poco de masilla para fijarlos.
+ - La ínsula y el cíngulo (gris en la web) están repartidos en los lóbulos vecinos.
+
+Fuente: superficie cortical fsaverage (FreeSurfer) con el atlas Desikan-Killiany, y plantilla MNI152 2009 para cerebelo y tronco.

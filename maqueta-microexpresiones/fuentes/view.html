@@ -1,0 +1,33 @@
+<!doctype html><html><body style="margin:0;background:#fff">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {KTX2Loader} from 'three/addons/loaders/KTX2Loader.js';
+import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
+const W=1200,H=1200; const R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); R.setSize(W,H); window.setSize=(w,h)=>R.setSize(w,h); R.setPixelRatio(1); document.body.append(R.domElement);
+R.outputColorSpace=THREE.SRGBColorSpace; R.toneMapping=THREE.ACESFilmicToneMapping;
+const S=new THREE.Scene(); S.background=new THREE.Color('#ffffff');
+const C=new THREE.OrthographicCamera(-1,1,1,-1,0.01,1000);
+const ktx=new KTX2Loader().setTranscoderPath('./node_modules/three/examples/jsm/libs/basis/').detectSupport(R);
+S.add(new THREE.HemisphereLight(0xffffff,0x887766,1.2));
+const k=new THREE.DirectionalLight(0xffffff,2.2); k.position.set(-1,1.2,2); S.add(k);
+const f2=new THREE.DirectionalLight(0xffe8d8,0.8); f2.position.set(1.5,0.2,1.5); S.add(f2);
+window.ready=new Promise(ok=>new GLTFLoader().setKTX2Loader(ktx).setMeshoptDecoder(MeshoptDecoder).load('facecap.glb',g=>{
+  const root=g.scene; S.add(root); let head=null;
+  root.traverse(o=>{ if(o.isMesh&&o.morphTargetDictionary) head=o; });
+  window.head=head;
+  root.traverse(o=>{ if(!o.isMesh) return; const m=o.material; m.roughness=0.55; m.onBeforeCompile=sh=>{
+    sh.fragmentShader=sh.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
+      { float lum=dot(diffuseColor.rgb,vec3(0.299,0.587,0.114));
+        vec3 skin=diffuseColor.rgb*vec3(1.42,1.08,0.88);
+        float keep=smoothstep(0.62,0.80,lum);
+        diffuseColor.rgb=mix(skin,diffuseColor.rgb,keep); }`); }; m.needsUpdate=true; }); window.root=root; window.names=Object.keys(head.morphTargetDictionary);
+  root.updateMatrixWorld(true); const b=new THREE.Box3().setFromObject(head,true); window.box=[b.min.toArray(),b.max.toArray()]; ok(); }));
+window.shot=(infl,cam)=>{ const h=window.head; h.morphTargetInfluences.fill(0);
+  for(const [n,v] of Object.entries(infl)){ const i=h.morphTargetDictionary[n]; if(i===undefined) throw new Error('no '+n); h.morphTargetInfluences[i]=v; }
+  // cam: {cx, cy (centro), half (media altura visible), w2h (ancho/alto), yaw, pitch}
+  const ctr=new THREE.Vector3(cam.cx,cam.cy,0); C.left=-cam.half*cam.w2h; C.right=cam.half*cam.w2h; C.top=cam.half; C.bottom=-cam.half;
+  const dir=new THREE.Vector3(Math.sin(cam.yaw||0),Math.sin(cam.pitch||0),Math.cos(cam.yaw||0)).normalize();
+  C.position.copy(ctr).addScaledVector(dir,100); C.lookAt(ctr); C.updateProjectionMatrix(); R.render(S,C); return R.domElement.toDataURL('image/png'); };
+</script></body></html>

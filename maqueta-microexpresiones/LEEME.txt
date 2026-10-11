@@ -1,0 +1,30 @@
+MAQUETA DE MICROEXPRESIONES: CARA DE 4 PRISMAS GIRATORIOS
+La cara mide unos 18 x 18 cm. Cada franja es un prisma cuadrado que gira sobre una varilla vertical y hace «clic» en cada una de sus 4 caras.
+
+QUÉ IMPRIMIR (Ender 3, PLA)
+ - prisma.stl ....... 4 veces (180 x 180 x 45 mm). Hueco hacia abajo, tal como viene.
+ - separador.stl .... 4 veces
+ - base.stl ......... 1 vez
+ - tapa.stl ......... 1 vez (tapa el prisma de arriba)
+ Ajustes: capa 0,2 mm, 4 perímetros (las paredes miden 1,6 mm), relleno 15 %.
+ Soportes: solo «tocando la placa», para el techo del hueco de abajo del prisma.
+
+QUÉ COMPRAR (ferretería o internet)
+ - 1 varilla roscada M8 de al menos 25 cm (se vende de 1 m; córtala con una sierra de metal)
+ - 10 tuercas M8 y 2 arandelas M8
+ - 8 rodamientos 608 (los de patinete, 22 x 8 x 7 mm)
+ - 24 imanes de neodimio de 6 x 2 mm
+ - Pegamento instantáneo o epoxi
+ - Una tabla de madera de unos 20 x 20 cm y 4 tornillos para madera de 4 mm
+
+MONTAJE
+ 1. Imanes: pega 4 imanes en el techo del hueco de cada prisma y 2 en la cara de arriba de cada separador.
+    IMPORTANTE: antes de pegar, comprueba que los del separador ATRAEN a los del prisma.
+    Truco: pega primero todos los del prisma con la misma cara hacia fuera, y luego, para cada imán del separador, acércalo a uno ya pegado y pégalo por el lado que se queda pegado.
+ 2. Rodamientos: en cada prisma mete un 608 a presión desde arriba en el agujero del centro, y otro desde abajo, en el agujero redondo del techo del hueco (queda rodeado por los imanes).
+ 3. Base: mete una tuerca M8 en el hexágono de abajo y otra en el de arriba de la base, enrosca la varilla y atornilla la base a la tabla.
+ 4. Cada nivel: mete una tuerca en el hexágono de un separador, enrosca el separador en la varilla (con la parte de los imanes hacia arriba) y deja caer encima un prisma. Ajusta la altura del separador para que entre un prisma y el de abajo quede ~1 mm de holgura.
+ 5. Repite con los 4 prismas. Pega la tapa encima del último prisma; arriba pon una arandela y una tuerca sin apretarla contra la tapa.
+ 6. Láminas: imprime laminas-microexpresiones-realistas.pdf al 100 % (sin «ajustar a la página»), recorta las tiras y pega cada una en su prisma en orden A, B, C, D (prisma 1 arriba, prisma 4 abajo). Mejor en papel adhesivo o con cola en barra.
+
+En la última página del PDF están las «recetas» de cada emoción y la zona del cerebro que la procesa.
